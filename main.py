@@ -1,10 +1,12 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import filedialog, messagebox
 from typing import List, Tuple
 from pathlib import Path
 from PIL import Image, ExifTags, UnidentifiedImageError
 import os
 from datetime import datetime
+from tqdm import tqdm
 
 selected_files: List[str] = []
 
@@ -46,7 +48,11 @@ def compress_images() -> None:
     new_folder: str = os.path.join(output_folder, f"compressed_{timestamp}")
     os.makedirs(new_folder, exist_ok=True)
 
-    for file in selected_files:
+    # Setup Progress Bar
+    progress_bar['value'] = 0
+    progress_bar['maximum'] = len(selected_files)
+
+    for file in tqdm(selected_files, desc="Compressing", unit="img"):
         try:
             with Image.open(file) as img:
                 # Auto Orient
@@ -84,6 +90,10 @@ def compress_images() -> None:
             continue
         except Exception as e:
             messagebox.showerror("Error", f"Error processing {file}: {e}")
+        
+        # Update GUI
+        progress_bar['value'] += 1
+        root.update_idletasks()  # to keep the window awake
 
     messagebox.showinfo("Success", f"Images processed and saved to {new_folder}.")
 
@@ -115,5 +125,9 @@ tk.Checkbutton(root, text="Auto Orient Images", variable=auto_orient_var, bg="#3
 
 compress_button = tk.Button(root, text="Process Images", command=compress_images, bg="#444", fg="#FFF", activebackground="#555", activeforeground="#FFF")
 compress_button.pack(pady=20)
+
+# Progress Bar Widget
+progress_bar = ttk.Progressbar(root, orient='horizontal', length=400, mode='determinate')
+progress_bar.pack(pady=10)
 
 root.mainloop()
