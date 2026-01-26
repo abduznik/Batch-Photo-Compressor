@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, UnidentifiedImageError
 import os
 from datetime import datetime
 
@@ -72,6 +72,11 @@ def compress_images():
                     img.save(output_path, "JPEG", quality=60)
                 else:
                     img.save(output_path, "JPEG", quality=100)
+
+        # Catch specific errors and Log instead of stopping
+        except (UnidentifiedImageError, IOError) as e:
+            print(f'Warning: Skipped invalid file {file}. Reason: {e}')
+            continue
         except Exception as e:
             messagebox.showerror("Error", f"Error processing {file}: {e}")
 
