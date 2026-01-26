@@ -1,21 +1,26 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from typing import List, Tuple
+from pathlib import Path
 from PIL import Image, ExifTags, UnidentifiedImageError
 import os
 from datetime import datetime
 
-def select_files_or_folder():
+selected_files: List[str] = []
+
+
+def select_files_or_folder() -> None:
     global selected_files
-    selected_files = []
     choice = file_or_folder.get()
 
     if choice == "files":
-        selected_files = filedialog.askopenfilenames(
+        files: Tuple[str, ...] = filedialog.askopenfilenames(
             title="Select Image Files",
             filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp;*.tiff")]
         )
+        selected_files = list(files)
     elif choice == "folder":
-        folder = filedialog.askdirectory(title="Select Folder")
+        folder: str = filedialog.askdirectory(title="Select Folder")
         if folder:
             for root, _, files in os.walk(folder):
                 for file in files:
@@ -27,18 +32,18 @@ def select_files_or_folder():
     else:
         files_label.config(text="No files selected")
 
-def compress_images():
+def compress_images() -> None:
     if not selected_files:
         messagebox.showwarning("No Files Selected", "Please select files or a folder to compress.")
         return
 
-    output_folder = filedialog.askdirectory(title="Select Output Folder")
+    output_folder: str = filedialog.askdirectory(title="Select Output Folder")
     if not output_folder:
         return
 
     # Create a new folder with the current date and time
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    new_folder = os.path.join(output_folder, f"compressed_{timestamp}")
+    timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    new_folder: str = os.path.join(output_folder, f"compressed_{timestamp}")
     os.makedirs(new_folder, exist_ok=True)
 
     for file in selected_files:
@@ -64,8 +69,8 @@ def compress_images():
 
                 # Ensure image is in RGB mode
                 img = img.convert("RGB")
-                filename = os.path.basename(file)
-                output_path = os.path.join(new_folder, os.path.splitext(filename)[0] + "_compressed.jpg")
+                filename: str = os.path.basename(file)
+                output_path: str = os.path.join(new_folder, os.path.splitext(filename)[0] + "_compressed.jpg")
 
                 # Save with compression if selected
                 if compress_var.get():
