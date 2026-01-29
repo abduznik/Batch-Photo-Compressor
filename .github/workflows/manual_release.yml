@@ -1,0 +1,54 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release (e.g. v1.0.0)'
+        required: true
+        type: string
+      release_name:
+        description: 'Release title'
+        required: true
+        type: string
+      body:
+        description: 'Description of the release'
+        required: false
+        default: 'Manual release created via GitHub Actions'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create_release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Executable
+        run: |
+          pyinstaller --onefile --windowed --name BatchPhotoCompressor main.py
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          name: ${{ inputs.release_name }}
+          body: ${{ inputs.body }}
+          draft: false
+          prerelease: false
+          files: dist/BatchPhotoCompressor.exe
+          generate_release_notes: true
