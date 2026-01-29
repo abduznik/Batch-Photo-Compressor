@@ -12,7 +12,7 @@ from tqdm import tqdm
 selected_files: List[str] = []
 
 # Helper function for validation
-def check_range(value) -> None:
+def check_range(value) -> int:
     i_value = int(value)
     if i_value < 1 or i_value > 100:
         raise argparse.ArgumentTypeError(f'{value} is invalid. Please choose an integer between 1 and 100.')
