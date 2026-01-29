@@ -6,10 +6,17 @@ from pathlib import Path
 from PIL import Image, ExifTags, UnidentifiedImageError
 import os
 from datetime import datetime
+import argparse
 from tqdm import tqdm
 
 selected_files: List[str] = []
 
+# Helper function for validation
+def check_range(value) -> None:
+    i_value = int(value)
+    if i_value < 1 or i_value > 100:
+        raise argparse.ArgumentTypeError(f'{value} is invalid. Please choose an integer between 1 and 100.')
+    return i_value
 
 def select_files_or_folder() -> None:
     global selected_files
@@ -80,7 +87,7 @@ def compress_images() -> None:
 
                 # Save with compression if selected
                 if compress_var.get():
-                    img.save(output_path, "JPEG", quality=60)
+                    img.save(output_path, "JPEG", quality=args.quality)
                 else:
                     img.save(output_path, "JPEG", quality=100)
 
@@ -97,13 +104,26 @@ def compress_images() -> None:
 
     messagebox.showinfo("Success", f"Images processed and saved to {new_folder}.")
 
+
+# Setup CLI Argument Parser
+parser = argparse.ArgumentParser(description='Image Processor CLI/GUI')
+
+# Define --quality argument with the custom validation type
+parser.add_argument(
+    '--quality',
+    type=check_range,
+    default=60,
+    help='Compression quality (1-100)',
+)
+
+# Parse arguments
+args = parser.parse_args()
+
 # GUI Setup
 root = tk.Tk()
 root.title("Image Processor")
 root.geometry("500x350")
 root.config(bg="#333")  # Dark theme background
-
-selected_files = []
 
 # GUI Elements
 tk.Label(root, text="Select Files or Folder and Options", bg="#333", fg="#FFF").pack(pady=10)
