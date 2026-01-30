@@ -90,18 +90,24 @@ def compress_images() -> None:
                 
                 # Determine File Extension
                 filename: str = os.path.basename(file)
-                file_root: Path = os.path.splitext(filename)[0]
+                file_root: str = os.path.splitext(filename)[0]
                 
                 if selected_format == 'JPEG':
                     ext = '.jpg'
                 else:
                     ext = f'.{selected_format.lower()}'
 
-                output_path: str = os.path.join(new_folder, f"{file_root}_compressed.{ext}")
+                output_path: str = os.path.join(new_folder, f"{file_root}_compressed{ext}")
+                
+                save_params = {'format': selected_format}
 
-                # Save with compression if selected
-                quality_val = args.quality if compress_var.get() else 100
-                img.save(output_path, format=selected_format, quality=quality_val)
+                # Only add quality if the format supports it
+                if selected_format in ['JPEG', 'WEBP']:
+                    quality_val = args.quality if compress_var.get() else 100
+                    save_params['quality'] = quality_val
+                
+                # Save with compression
+                img.save(output_path, **save_params)
 
         # Catch specific errors and Log instead of stopping
         except (UnidentifiedImageError, IOError) as e:
