@@ -59,6 +59,9 @@ def compress_images() -> None:
     progress_bar['value'] = 0
     progress_bar['maximum'] = len(selected_files)
 
+    # Get the format selected by the user
+    selected_format = format_var.get()
+
     for file in tqdm(selected_files, desc="Compressing", unit="img"):
         try:
             with Image.open(file) as img:
@@ -80,16 +83,31 @@ def compress_images() -> None:
                     except Exception as e:
                         print(f"Auto-orientation failed for {file}: {e}")
 
-                # Ensure image is in RGB mode
-                img = img.convert("RGB")
+                # Handle Transparency
+                if selected_format == 'JPEG' and img.mode in ('RGBA', 'P'):
+                    # Ensure image is in RGB mode
+                    img = img.convert("RGB")
+                
+                # Determine File Extension
                 filename: str = os.path.basename(file)
-                output_path: str = os.path.join(new_folder, os.path.splitext(filename)[0] + "_compressed.jpg")
-
-                # Save with compression if selected
-                if compress_var.get():
-                    img.save(output_path, "JPEG", quality=args.quality)
+                file_root: str = os.path.splitext(filename)[0]
+                
+                if selected_format == 'JPEG':
+                    ext = '.jpg'
                 else:
-                    img.save(output_path, "JPEG", quality=100)
+                    ext = f'.{selected_format.lower()}'
+
+                output_path: str = os.path.join(new_folder, f"{file_root}_compressed{ext}")
+                
+                save_params = {'format': selected_format}
+
+                # Only add quality if the format supports it
+                if selected_format in ['JPEG', 'WEBP']:
+                    quality_val = args.quality if compress_var.get() else 100
+                    save_params['quality'] = quality_val
+                
+                # Save with compression
+                img.save(output_path, **save_params)
 
         # Catch specific errors and Log instead of stopping
         except (UnidentifiedImageError, IOError) as e:
@@ -135,6 +153,15 @@ tk.Radiobutton(root, text="Select Folder", variable=file_or_folder, value="folde
 
 files_label = tk.Label(root, text="No files selected", fg="#0F0", bg="#333")
 files_label.pack(pady=5)
+
+# Output Format Selection
+format_label = tk.Label(root, text="Output Format:", bg="#333", fg="#FFF")
+format_label.pack()
+
+format_var = tk.StringVar(value="JPEG")
+format_menu = ttk.Combobox(root, textvariable=format_var, state="readonly")
+format_menu["values"] = ["JPEG", "PNG", "WEBP"]
+format_menu.pack(pady=5)
 
 # Checkboxes for options
 compress_var = tk.BooleanVar(value=True)
