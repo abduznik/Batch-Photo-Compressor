@@ -97,7 +97,7 @@ def compress_images() -> None:
                 else:
                     ext = f'.{selected_format.lower()}'
 
-                output_path: str = os.path.join(new_folder, f"{file_root}_compressed.{selected_format}")
+                output_path: str = os.path.join(new_folder, f"{file_root}_compressed.{ext}")
 
                 # Save with compression if selected
                 quality_val = args.quality if compress_var.get() else 100
