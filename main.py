@@ -46,6 +46,15 @@ def update_quality_label(val) -> None:
     quality_value_label.config(text=f"{int(float(val))}%")
 
 
+def toggle_quality_slider() -> None:
+    if compress_var.get():
+        quality_scale.config(state='normal')
+        quality_value_label.config(fg='#FFF')
+    else:
+        quality_scale.config(state='disabled')
+        quality_value_label.config(fg='#777')
+
+
 def compress_images() -> None:
     if not selected_files:
         messagebox.showwarning("No Files Selected", "Please select files or a folder to compress.")
@@ -114,7 +123,6 @@ def compress_images() -> None:
 
                 # Only add quality if the format supports it
                 if selected_format in ['JPEG', 'WEBP']:
-                    quality_val = args.quality if compress_var.get() else 100
                     save_params['quality'] = quality_val
 
                 # Save with compression
@@ -191,7 +199,7 @@ quality_value_label.pack(side=tk.LEFT, padx=5)
 compress_var = tk.BooleanVar(value=True)
 auto_orient_var = tk.BooleanVar(value=False)
 
-tk.Checkbutton(root, text="Enable Compression (Medium, 60%)", variable=compress_var, bg="#333", fg="#FFF", selectcolor="#555").pack()
+tk.Checkbutton(root, text="Enable Compression", variable=compress_var, bg="#333", fg="#FFF", selectcolor="#555", command=toggle_quality_slider).pack()
 tk.Checkbutton(root, text="Auto Orient Images", variable=auto_orient_var, bg="#333", fg="#FFF", selectcolor="#555").pack()
 
 compress_button = tk.Button(root, text="Process Images", command=compress_images, bg="#444", fg="#FFF", activebackground="#555", activeforeground="#FFF")
