@@ -148,6 +148,15 @@ tk.Radiobutton(root, text="Select Folder", variable=file_or_folder, value="folde
 files_label = tk.Label(root, text="No files selected", fg="#0F0", bg="#333")
 files_label.pack(pady=5)
 
+# Output Format Selection
+format_label = tk.Label(root, text="Output Format:", bg="#333", fg="#FFF")
+format_label.pack()
+
+format_var = tk.StringVar(value="JPEG")
+format_menu = ttk.Combobox(root, textvariable=format_var, state="readonly")
+format_menu["values"] = ["JPEG", "PNG", "WEBP"]
+format_menu.pack(pady=5)
+
 # Checkboxes for options
 compress_var = tk.BooleanVar(value=True)
 auto_orient_var = tk.BooleanVar(value=False)
@@ -161,15 +170,5 @@ compress_button.pack(pady=20)
 # Progress Bar Widget
 progress_bar = ttk.Progressbar(root, orient='horizontal', length=400, mode='determinate')
 progress_bar.pack(pady=10)
-
-# Output Format Selection
-format_label = tk.Label(root, text="Output Format:", bg="#333", fg="#FFF")
-format_label.pack()
-
-format_var = tk.StringVar(value='JPEG')
-format_menu = ttk.Combobox(root, textvariable=format_var, state='readonly')
-format_menu['values'] = ['JPEG', 'PNG', 'WEBP']
-format_menu.pack(pady=5)
-
 
 root.mainloop()
